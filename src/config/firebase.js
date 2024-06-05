@@ -9,11 +9,11 @@ import { getFirestore } from "firebase/firestore";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_APIKEY,
-  authDomain: import.meta.env.VITE_AUTHDOMAIN,
-  projectId: import.meta.env.VITE_PROJECTID,
-  storageBucket: import.meta.env.VITE_STORAGEBUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGINGSENDERID,
-  appId: import.meta.env.VITE_APPID
+  authDomain: "crudflutterapp-6732e.firebaseapp.com",
+  projectId: "crudflutterapp-6732e",
+  storageBucket: "crudflutterapp-6732e.appspot.com",
+  messagingSenderId: "131182779768",
+  appId: "1:131182779768:web:1243699d67f67b1c847c8d"
 };
 // project-662731705261
 // Initialize Firebase
