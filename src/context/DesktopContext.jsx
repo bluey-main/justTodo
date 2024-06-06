@@ -16,25 +16,31 @@ const DesktopProvider = ({ children }) => {
   const [newTask, setNewTask] = useState("");
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [activeTask, setActiveTask] = useState({})
+  const [taskLoading, setTaskLoading]  = useState(false)
 
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let unsubscribe;
     if (user?.uid) {
+      setTaskLoading(true)
       unsubscribe = onSnapshot(
         doc(db, "justTodo", user.uid),
         (snapshot) => {
+        
           const data = snapshot.data();
           if (data) {
             setTasks(data.tasks);
             console.log(data.tasks);
+            setTaskLoading(false)
           } else {
             console.log("No tasks found in the snapshot");
+            setTaskLoading(false)
           }
         },
         (error) => {
           console.error("Error fetching tasks:", error);
+          setTaskLoading(false)
         }
       );
     }
@@ -83,7 +89,8 @@ const DesktopProvider = ({ children }) => {
     }
   };
 
-  const handleMove = (task) => {
+  const handleMove = (task, e) => {
+    e.stopPropagation()
     try {
       const newTasks = { ...tasks };
       const docRef = doc(db, "justTodo", user.uid);
@@ -97,6 +104,36 @@ const DesktopProvider = ({ children }) => {
         task.status = "done";
         newTasks.done.push(task);
         newTasks["inProgress"] = newTasks["inProgress"].filter(
+          (t) => t.id !== task.id
+        );
+      }
+     
+      setTasks(newTasks);
+      updateDoc(docRef, {
+        tasks: newTasks,
+      });
+
+    
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleMoveBackward = (task, e) => {
+    e.stopPropagation()
+    try {
+      const newTasks = { ...tasks };
+      const docRef = doc(db, "justTodo", user.uid);
+      if (task.status === "inProgress") {
+        task.status = "todo";
+        newTasks.todo.push(task);
+        newTasks["inProgress"] = newTasks["inProgress"].filter(
+          (t) => t.id !== task.id
+        );
+      } else if (task.status === "done") {
+        task.status = "inProgress";
+        newTasks.inProgress.push(task);
+        newTasks["done"] = newTasks["done"].filter(
           (t) => t.id !== task.id
         );
       }
@@ -142,7 +179,8 @@ const DesktopProvider = ({ children }) => {
     
   };
 
-  const deleteTask = async(id, column) => {
+  const deleteTask = async(id, column, e) => {
+    e.stopPropagation()
     try {
       const newTasks = { ...tasks };
       const docRef = doc(db, "justTodo", user.uid);
@@ -178,6 +216,9 @@ const DesktopProvider = ({ children }) => {
     setViewDialogOpen,
     activeTask,
     setActiveTask,
+    handleMoveBackward,
+    setTaskLoading,
+    taskLoading
   };
   return (
     <DesktopContext.Provider value={values}>{children}</DesktopContext.Provider>

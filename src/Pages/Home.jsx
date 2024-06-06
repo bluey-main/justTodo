@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogBody,
   Input,
-
   Typography,
 } from "@material-tailwind/react";
 import todoImage from "../assets/todo.jpg";
@@ -19,6 +18,7 @@ import { CiPower } from "react-icons/ci";
 import moment from "moment";
 import Navbar from "../components/Navbar";
 import ViewTaskDialog from "../components/ViewTaskDialog";
+import { ClipLoader } from "react-spinners";
 
 const Home = () => {
   const {
@@ -31,12 +31,13 @@ const Home = () => {
     handleOpen,
     activeTask,
     setActiveTask,
-
+    setTaskLoading,
+    taskLoading,
   } = useContext(DesktopContext);
 
-  const {signOut, user} = useContext(AuthContext)
+  const { signOut, user } = useContext(AuthContext);
 
-  const columnOrder = ['todo', 'inProgress', 'done'];
+  const columnOrder = ["todo", "inProgress", "done"];
 
   return (
     <div>
@@ -59,26 +60,34 @@ const Home = () => {
         </div>
 
         <div className="flex w-full overflow-x-auto  gap-x-4 transition-all duration-300 ease-in-out delay-100">
-
-          {columnOrder.map((column,index) => (
+          {columnOrder.map((column, index) => (
             <div
               key={column}
-              className={`lg:w-[20rem] min-w-[15rem] min-h-[20rem] ${index == 0 ? "ml-6" : index == 2 ? "mr-6": ""}  transition-all duration-300 ease-in-out delay-100 bg-[#fafafa] flex flex-col gap-y-4 p-6 `}
+              className={`lg:w-[20rem] min-w-[15rem] min-h-[20rem] ${
+                index === 0 ? "ml-6" : index === 2 ? "mr-6" : ""
+              } transition-all duration-300 ease-in-out delay-100 bg-[#fafafa] flex flex-col gap-y-4 p-6`}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column)}
             >
               <h2>{column.charAt(0).toUpperCase() + column.slice(1)}</h2>
-              {tasks && tasks[column] &&
+              {taskLoading ? (
+                <div className="w-full h-full flex justify-center items-center">
+                <ClipLoader color={`${column === "todo" ? "red" : column === "inProgress" ? "yellow" : "green"}`} />
+
+                </div>
+              ) : (
+                tasks &&
+                tasks[column] &&
                 tasks[column].map((task) => (
                   <TodoCard key={task.id} task={task} column={column} />
-                ))}
-               
+                ))
+              )}
             </div>
           ))}
         </div>
 
-        <AddTaskDIalog/>
-        <ViewTaskDialog task={activeTask}/>
+        <AddTaskDIalog />
+        <ViewTaskDialog task={activeTask} />
       </div>
     </div>
   );
