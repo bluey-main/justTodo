@@ -63,7 +63,7 @@ const Home = () => {
           {columnOrder.map((column, index) => (
             <div
               key={column}
-              className={`lg:w-[20rem] min-w-[15rem] max-h-[35rem] overflow-y-auto min-h-[20rem] ${
+              className={`lg:w-[20rem] min-w-[15rem] h-[30rem] overflow-y-auto min-h-[20rem] ${
                 index === 0 ? "ml-6" : index === 2 ? "mr-6" : ""
               } transition-all duration-300 ease-in-out delay-100 bg-[#fafafa] flex flex-col gap-y-4 p-6`}
               onDragOver={handleDragOver}
