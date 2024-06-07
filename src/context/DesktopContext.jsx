@@ -15,32 +15,33 @@ const DesktopProvider = ({ children }) => {
   const [draggedFrom, setDraggedFrom] = useState(null);
   const [newTask, setNewTask] = useState("");
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [activeTask, setActiveTask] = useState({})
-  const [taskLoading, setTaskLoading]  = useState(false)
+  const [activeTask, setActiveTask] = useState({});
+  const [taskLoading, setTaskLoading] = useState(false);
+  const [addTaskLoading, setAddTaskLoading] = useState(false)
+  const [error, setError] = useState(false)
 
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let unsubscribe;
     if (user?.uid) {
-      setTaskLoading(true)
+      setTaskLoading(true);
       unsubscribe = onSnapshot(
         doc(db, "justTodo", user.uid),
         (snapshot) => {
-        
           const data = snapshot.data();
           if (data) {
             setTasks(data.tasks);
             console.log(data.tasks);
-            setTaskLoading(false)
+            setTaskLoading(false);
           } else {
             console.log("No tasks found in the snapshot");
-            setTaskLoading(false)
+            setTaskLoading(false);
           }
         },
         (error) => {
           console.error("Error fetching tasks:", error);
-          setTaskLoading(false)
+          setTaskLoading(false);
         }
       );
     }
@@ -70,36 +71,33 @@ const DesktopProvider = ({ children }) => {
       try {
         const newTasks = { ...tasks };
         const docRef = doc(db, "justTodo", user.uid);
-        
+
         newTasks[draggedFrom] = newTasks[draggedFrom].filter(
           (task) => task.id !== draggedTask.id
         );
         draggedTask.status = column;
         newTasks[column].push(draggedTask);
         setTasks(newTasks);
-        await updateDoc(docRef,{
-          tasks : newTasks,
-        })
+        await updateDoc(docRef, {
+          tasks: newTasks,
+        });
         setDraggedTask(null);
         setDraggedFrom(null);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-     
     }
   };
 
   const handleMove = (task, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     try {
       const newTasks = { ...tasks };
       const docRef = doc(db, "justTodo", user.uid);
       if (task.status === "todo") {
         task.status = "inProgress";
         newTasks.inProgress.push(task);
-        newTasks["todo"] = newTasks["todo"].filter(
-          (t) => t.id !== task.id
-        );
+        newTasks["todo"] = newTasks["todo"].filter((t) => t.id !== task.id);
       } else if (task.status === "inProgress") {
         task.status = "done";
         newTasks.done.push(task);
@@ -107,20 +105,18 @@ const DesktopProvider = ({ children }) => {
           (t) => t.id !== task.id
         );
       }
-     
+
       setTasks(newTasks);
       updateDoc(docRef, {
         tasks: newTasks,
       });
-
-    
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleMoveBackward = (task, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     try {
       const newTasks = { ...tasks };
       const docRef = doc(db, "justTodo", user.uid);
@@ -133,72 +129,82 @@ const DesktopProvider = ({ children }) => {
       } else if (task.status === "done") {
         task.status = "inProgress";
         newTasks.inProgress.push(task);
-        newTasks["done"] = newTasks["done"].filter(
-          (t) => t.id !== task.id
-        );
+        newTasks["done"] = newTasks["done"].filter((t) => t.id !== task.id);
       }
-     
+
       setTasks(newTasks);
       updateDoc(docRef, {
         tasks: newTasks,
       });
-
-    
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleOpen = () => {
+    setNewTask("")
+    setError(false)
     setOpen(!open);
   };
+
   const handleViewDialogOpen = () => {
     setViewDialogOpen(!viewDialogOpen);
-
   };
 
   const addTask = async () => {
     try {
+      if (!newTask){
+        setError(true)
+        return;
+      }
+      setAddTaskLoading(true)
       const newTasks = { ...tasks };
-    const docRef = doc(db, "justTodo", user.uid);
-    newTasks.todo.push({
-      id: v4(),
-      content: newTask,
-      date: moment().toString(),
-      status: "todo",
-    });
-    setTasks(newTasks);
-    await updateDoc(docRef, {
-      tasks: newTasks,
-    });
-    setOpen(false);
-    setNewTask("");
+      const docRef = doc(db, "justTodo", user.uid);
+      newTasks.todo.push({
+        id: v4(),
+        content: newTask,
+        date: moment().toString(),
+        status: "todo",
+      });
+      setTasks(newTasks);
+      await updateDoc(docRef, {
+        tasks: newTasks,
+      });
+      setNewTask("");
+      setOpen(false);
+      setAddTaskLoading(false)
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      setAddTaskLoading(false)
     }
-    
   };
 
-  const deleteTask = async(id, column, e) => {
-    e.stopPropagation()
+  const addTaskWhenEnterIsPressed = (e) => {
+    if (e.key === "Enter") {
+      addTask();
+    }
+  };
+
+  const deleteTask = async (id, column, e) => {
+    e.stopPropagation();
     try {
       const newTasks = { ...tasks };
       const docRef = doc(db, "justTodo", user.uid);
-  
+
       newTasks[column] = newTasks[column].filter((task) => task.id !== id);
       await updateDoc(docRef, {
         tasks: newTasks,
       });
-      setTasks(newTasks)
+      setTasks(newTasks);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  
   };
 
   const values = {
     tasks,
     open,
+    newTask,
     setNewTask,
     deleteTask,
     setOpen,
@@ -218,7 +224,10 @@ const DesktopProvider = ({ children }) => {
     setActiveTask,
     handleMoveBackward,
     setTaskLoading,
-    taskLoading
+    taskLoading,
+    addTaskWhenEnterIsPressed,
+    error,
+    addTaskLoading,
   };
   return (
     <DesktopContext.Provider value={values}>{children}</DesktopContext.Provider>
