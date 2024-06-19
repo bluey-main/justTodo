@@ -6,6 +6,7 @@ import AuthProvider from "./context/AuthContext";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
 import Login from "./Pages/Login";
+import NotFound from "./components/NotFound";
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
                 </PrivateRoute>
               }
             />
+            <Route path="*" element={<NotFound/>} />
           </Routes>
         </DesktopProvider>
       </AuthProvider>

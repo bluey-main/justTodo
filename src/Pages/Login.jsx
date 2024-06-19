@@ -1,4 +1,5 @@
-import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
 import bgImage from "../assets/todo.jpg";
 import { Typography } from "@material-tailwind/react";
 import { FcGoogle } from "react-icons/fc";
@@ -6,12 +7,26 @@ import { AuthContext } from "../context/AuthContext";
 import { CircleLoader, ClipLoader } from "react-spinners";
 
 const Login = () => {
-  const { signInWithGoogle, loading ,processing} = useContext(AuthContext);
+  const { signInWithGoogle, loading, processing, user } =
+    useContext(AuthContext);
+  const [checkLoading, setCheckLoading] = useState(true);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+      setCheckLoading(false);
+    }else{
+      setCheckLoading(false);
+    }
+  }, [navigate, user]);
   return (
+    checkLoading ? <ClipLoader className="text-[#fa8b23]" /> :
     <div className="w-full h-screen flex">
       <div className=" lg:w-1/2 w-full  h-full p-14">
         <div className="w-full flex lg:justify-start lg:items-start justify-center items-centerh-[20%]">
-          <Typography className="lg:text-3xl text-xl lg:text-left text-center text-[#fa8b23]">Just Todo</Typography>
+          <Typography className="lg:text-3xl text-xl lg:text-left text-center text-[#fa8b23]">
+            Just Todo
+          </Typography>
         </div>
 
         <div className="w-full h-[80%] flex bg-green-2 flex-col lg:gap-y-20 gap-y-10 justify-center items-center lg:items-start ">
@@ -28,7 +43,7 @@ const Login = () => {
               className="w-[70%] min-h-14 cursor-pointer border rounded-lg border-black hover:border-white group flex justify-center hover:bg-[#fa8b23] transition ease-in-out delay-150   items-center gap-x-6 "
             >
               {processing ? (
-                <ClipLoader className="text-[#fa8b23]"/>
+                <ClipLoader className="text-[#fa8b23]" />
               ) : (
                 <div className="w-full h-full flex justify-center flex-wrap gap-y-3 items-center gap-x-6">
                   <FcGoogle className="text-3xl group-hover:text-white " />

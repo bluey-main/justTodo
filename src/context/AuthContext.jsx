@@ -31,6 +31,7 @@ const AuthProvider = ({ children }) => {
             await signInWithPopup(auth, provider);
     
             setProcessing(false);
+            navigate('/');
         } catch (error) {
             console.log(error);
             setProcessing(false);
@@ -78,7 +79,7 @@ const AuthProvider = ({ children }) => {
                 setLoading(false);
                 console.log(user);
                 createUser(user)
-                navigate('/');
+                // navigate('/');
             } else {
                 setUser(null);
                 setLoading(false);
@@ -86,7 +87,7 @@ const AuthProvider = ({ children }) => {
         });
 
         return unsubscribe;
-    }, [navigate])
+    }, [])
 
     const values = { user, signInWithGoogle, loading, processing, signOut };
     return (
